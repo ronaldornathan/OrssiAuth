@@ -1,80 +1,152 @@
-<script setup>
+<script setup lang="ts">
+const route = useRoute()
+
+const description
+  = 'OrssiAuth simplifie l\'accès à votre espace personnel. Créez votre compte ou connectez-vous grâce à une interface claire et intuitive.'
+
 useHead({
+  title: 'Accéder à votre espace',
+  titleTemplate: '%s · OrssiAuth',
+
   meta: [
-    { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+    {
+      name: 'viewport',
+      content: 'width=device-width, initial-scale=1'
+    },
+    {
+      name: 'theme-color',
+      content: '#6366f1'
+    }
   ],
+
   link: [
-    { rel: 'icon', href: '/favicon.ico' }
+    {
+      rel: 'icon',
+      href: '/favicon.ico'
+    }
   ],
+
   htmlAttrs: {
-    lang: 'en'
+    lang: 'fr'
   }
 })
 
-const title = 'Nuxt Starter Template'
-const description = 'A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours.'
-
 useSeoMeta({
-  title,
   description,
-  ogTitle: title,
+  ogTitle: 'OrssiAuth — Votre espace personnel',
   ogDescription: description,
-  ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/starter-light.png',
-  twitterCard: 'summary_large_image'
+  ogType: 'website',
+  twitterCard: 'summary'
 })
 </script>
 
 <template>
   <UApp>
     <UHeader>
-      <template #left>
-        <NuxtLink
-          to="/"
-          class="focus-visible:outline-3 outline-primary/25 rounded-md p-1 -ms-1"
-        >
-          <AppLogo class="w-auto h-6 shrink-0" />
-        </NuxtLink>
+      <!-- Identité de la plateforme -->
+      <template #title>
+        <span class="inline-flex items-center gap-3">
+          <span
+            class="flex size-10 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20"
+          >
+            <UIcon
+              name="i-lucide-shield-check"
+              class="size-6"
+            />
+          </span>
 
-        <TemplateMenu />
+          <span class="flex flex-col">
+            <span class="text-lg font-bold tracking-tight text-highlighted">
+              OrssiAuth
+            </span>
+
+            <span class="hidden text-xs text-muted sm:block">
+              Votre espace personnel
+            </span>
+          </span>
+        </span>
       </template>
 
+      <!-- Navigation -->
       <template #right>
-        <UColorModeButton />
-
-        <UButton
-          to="https://github.com/nuxt-ui-templates/starter"
-          target="_blank"
-          icon="i-simple-icons-github"
-          aria-label="GitHub"
-          color="neutral"
+        <UColorModeButton
+          size="lg"
           variant="ghost"
+          aria-label="Changer le thème"
         />
+
+        <!-- Sur la page de connexion -->
+        <template v-if="route.path === '/login'">
+          <UButton
+            to="/signup"
+            label="Créer un compte"
+            icon="i-lucide-user-round-plus"
+            color="primary"
+            variant="solid"
+            size="lg"
+            class="hidden sm:inline-flex"
+          />
+
+          <UButton
+            to="/signup"
+            icon="i-lucide-user-round-plus"
+            color="primary"
+            variant="solid"
+            size="lg"
+            class="sm:hidden"
+            aria-label="Créer un compte"
+          />
+        </template>
+
+        <!-- Sur la page d'inscription -->
+        <template v-else-if="route.path === '/signup'">
+          <UButton
+            to="/login"
+            label="Se connecter"
+            icon="i-lucide-log-in"
+            color="neutral"
+            variant="outline"
+            size="lg"
+          />
+        </template>
+
+        <!-- Sur le tableau de bord -->
+        <template v-else-if="route.path === '/dashboard'">
+          <UButton
+            to="/"
+            label="Quitter l’aperçu"
+            icon="i-lucide-arrow-up-left"
+            color="neutral"
+            variant="outline"
+            size="lg"
+          />
+        </template>
+
+        <!-- Sur les autres pages -->
+        <template v-else>
+          <UButton
+            to="/login"
+            label="Connexion"
+            icon="i-lucide-log-in"
+            color="neutral"
+            variant="outline"
+            size="lg"
+            class="hidden sm:inline-flex"
+          />
+
+          <UButton
+            to="/signup"
+            label="Créer un compte"
+            icon="i-lucide-user-round-plus"
+            color="primary"
+            variant="solid"
+            size="lg"
+          />
+        </template>
       </template>
     </UHeader>
 
-    <UMain>
-      <NuxtPage />
-    </UMain>
-
-    <USeparator icon="i-simple-icons-nuxtdotjs" />
-
-    <UFooter>
-      <template #left>
-        <p class="text-sm text-muted">
-          Built with Nuxt UI • © {{ new Date().getFullYear() }}
-        </p>
-      </template>
-
-      <template #right>
-        <UButton
-          to="https://github.com/nuxt-ui-templates/starter"
-          target="_blank"
-          icon="i-simple-icons-github"
-          aria-label="GitHub"
-          color="neutral"
-          variant="ghost"
-        />
-      </template>
-    </UFooter>
+    <!-- Pages de l'application -->
+    <NuxtPage />
   </UApp>
 </template>
