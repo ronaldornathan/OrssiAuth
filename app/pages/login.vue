@@ -1,60 +1,84 @@
 <script setup lang="ts">
-const toast = useToast();
+const toast = useToast()
+const supabase = useSupabaseClient()
 
-const showPassword = ref(false);
+const showPassword = ref(false)
+const loading = ref(false)
+const errorMessage = ref('')
 
 const form = reactive({
-  email: "",
-  password: "",
-});
+  email: '',
+  password: ''
+})
 
 const benefits = [
   {
-    icon: "i-lucide-layout-dashboard",
-    title: "Un espace centralisé",
-    description: "Retrouvez votre espace personnel au même endroit.",
+    icon: 'i-lucide-layout-dashboard',
+    title: 'Un espace centralisé',
+    description: 'Retrouvez votre espace personnel au même endroit.'
   },
   {
-    icon: "i-lucide-zap",
-    title: "Un parcours simplifié",
-    description: "Une interface claire pour accéder à votre compte.",
+    icon: 'i-lucide-zap',
+    title: 'Un parcours simplifié',
+    description: 'Une interface claire pour accéder à votre compte.'
   },
   {
-    icon: "i-lucide-monitor-smartphone",
-    title: "Sur tous vos écrans",
-    description: "Une expérience adaptée au mobile et à l’ordinateur.",
-  },
-];
+    icon: 'i-lucide-monitor-smartphone',
+    title: 'Sur tous vos écrans',
+    description: 'Une expérience adaptée au mobile et à l’ordinateur.'
+  }
+]
 
 useHead({
-  title: "Se connecter",
+  title: 'Se connecter',
   meta: [
     {
-      name: "description",
-      content: "Connectez-vous à votre espace personnel OrssiAuth.",
-    },
-  ],
-});
+      name: 'description',
+      content: 'Connectez-vous à votre espace personnel OrssiAuth.'
+    }
+  ]
+})
 
-function submitLogin() {
-  form.email = form.email.trim();
+async function submitLogin() {
+  loading.value = true
+  errorMessage.value = ''
 
-  toast.add({
-    title: "Connexion indisponible",
-    description:
-      "Le service d’authentification n’est pas encore configuré. Réessayez lorsque la connexion sera activée.",
-    color: "warning",
-    icon: "i-lucide-info",
-  });
+  try {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: form.email.trim(),
+      password: form.password
+    })
+
+    if (error) {
+      errorMessage.value = error.message
+      toast.add({
+        title: 'Connexion impossible',
+        description: error.message,
+        color: 'error'
+      })
+      return
+    }
+
+    await navigateTo('/dashboard')
+  } catch {
+    errorMessage.value = 'Une erreur inattendue est survenue.'
+    toast.add({
+      title: 'Erreur',
+      description: errorMessage.value,
+      color: 'error'
+    })
+  } finally {
+    loading.value = false
+  }
 }
 
 function loginWithGoogle() {
   toast.add({
-    title: "Google non configuré",
-    description: "La connexion Google nécessite une configuration OAuth.",
-    color: "warning",
-    icon: "i-lucide-info",
-  });
+    title: 'Google non configuré',
+    description: 'La connexion Google nécessite une configuration OAuth.',
+    color: 'warning',
+    icon: 'i-lucide-info'
+  })
 }
 </script>
 
@@ -63,7 +87,10 @@ function loginWithGoogle() {
     class="relative isolate flex min-h-[calc(100dvh-4rem)] items-center overflow-hidden py-10 sm:py-14"
   >
     <!-- Arrière-plan animé -->
-    <Background variant="particles" :speed="1.3" />
+    <Background
+      variant="particles"
+      :speed="1.3"
+    />
 
     <!-- Améliore le contraste du contenu -->
     <div
@@ -76,14 +103,20 @@ function loginWithGoogle() {
         class="mx-auto grid w-full max-w-6xl items-center gap-10 lg:grid-cols-2 lg:gap-20"
       >
         <!-- Présentation sur ordinateur -->
-        <section aria-labelledby="login-intro" class="hidden lg:block">
+        <section
+          aria-labelledby="login-intro"
+          class="hidden lg:block"
+        >
           <UBadge
             color="primary"
             variant="subtle"
             size="lg"
             class="gap-2 rounded-full px-3 py-1.5"
           >
-            <UIcon name="i-lucide-sparkles" class="size-4" />
+            <UIcon
+              name="i-lucide-sparkles"
+              class="size-4"
+            />
             Votre espace personnel
           </UBadge>
 
@@ -112,7 +145,10 @@ function loginWithGoogle() {
             <div
               class="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary shadow-lg shadow-primary/10"
             >
-              <UIcon name="i-lucide-shield-check" class="size-7" />
+              <UIcon
+                name="i-lucide-shield-check"
+                class="size-7"
+              />
             </div>
 
             <p
@@ -135,7 +171,7 @@ function loginWithGoogle() {
           <UCard
             class="login-card w-full border border-default/70 bg-default/85 shadow-2xl shadow-primary/10 backdrop-blur-2xl"
             :ui="{
-              body: 'p-6 sm:p-8',
+              body: 'p-6 sm:p-8'
             }"
           >
             <!-- En-tête du formulaire -->
@@ -162,7 +198,10 @@ function loginWithGoogle() {
               @click="loginWithGoogle"
             >
               <template #leading>
-                <UIcon name="i-simple-icons-google" class="size-5" />
+                <UIcon
+                  name="i-simple-icons-google"
+                  class="size-5"
+                />
               </template>
 
               Continuer avec Google
@@ -181,9 +220,17 @@ function loginWithGoogle() {
               </div>
             </div>
 
-            <form class="space-y-5" @submit.prevent="submitLogin">
+            <UForm
+              :state="form"
+              class="space-y-5"
+              @submit.prevent="submitLogin"
+            >
               <!-- Adresse e-mail -->
-              <UFormField label="Adresse e-mail" name="email" required>
+              <UFormField
+                label="Adresse e-mail"
+                name="email"
+                required
+              >
                 <UInput
                   v-model="form.email"
                   type="email"
@@ -198,7 +245,11 @@ function loginWithGoogle() {
               </UFormField>
 
               <!-- Mot de passe -->
-              <UFormField label="Mot de passe" name="password" required>
+              <UFormField
+                label="Mot de passe"
+                name="password"
+                required
+              >
                 <UInput
                   v-model="form.password"
                   :type="showPassword ? 'text' : 'password'"
@@ -238,7 +289,13 @@ function loginWithGoogle() {
                   Mot de passe oublié ?
                 </NuxtLink>
               </div>
-
+              <UAlert
+                v-if="errorMessage"
+                color="error"
+                variant="subtle"
+                title="Connexion impossible"
+                :description="errorMessage"
+              />
               <!-- Connexion -->
               <UButton
                 type="submit"
@@ -247,27 +304,29 @@ function loginWithGoogle() {
                 color="primary"
                 size="xl"
                 block
+                :loading="loading"
+                :disabled="loading"
                 class="rounded-xl shadow-lg shadow-primary/20 transition-transform duration-200 hover:-translate-y-0.5"
               />
-            </form>
+            </UForm>
 
-            <!-- Inscription -->
-            <div class="mt-7 border-t border-default/70 pt-6">
-              <p class="text-center text-sm text-muted">
-                Vous n’avez pas encore de compte ?
-              </p>
+              <!-- Inscription -->
+              <div class="mt-7 border-t border-default/70 pt-6">
+                <p class="text-center text-sm text-muted">
+                  Vous n’avez pas encore de compte ?
+                </p>
 
-              <UButton
-                to="/signup"
-                label="Créer un compte"
-                trailing-icon="i-lucide-user-round-plus"
-                color="neutral"
-                variant="outline"
-                size="xl"
-                block
-                class="mt-4 rounded-xl"
-              />
-            </div>
+                <UButton
+                  to="/signup"
+                  label="Créer un compte"
+                  trailing-icon="i-lucide-user-round-plus"
+                  color="neutral"
+                  variant="outline"
+                  size="xl"
+                  block
+                  class="mt-4 rounded-xl"
+                />
+              </div>
           </UCard>
         </section>
       </div>
