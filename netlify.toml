@@ -1,0 +1,6 @@
+[build]
+  command = "pnpx nuxi generate"
+  publish = ".output/public"
+
+[build.environment]
+  NODE_VERSION = "24.22.1"
